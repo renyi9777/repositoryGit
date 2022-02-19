@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       https://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--    组件扫描器-->
+    <context:component-scan base-package="com.service"/>
+
+    <!--    配置文件导入-->
+    <context:property-placeholder location="classpath:jdbc.properties"/>
+
+    <!--    创建数据源,阿里巴巴数据库连接池-->
+    <bean id="datasource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+        <property name="maxActive" value="${jdbc.maxActive}"/>
+    </bean>
+
+    <!--    创建Factory对象-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!--        把数据源赋给该对象-->
+        <property name="dataSource" ref="datasource"/>
+        <!--        把mybatis的配置文件也赋值给该对象-->
+        <property name="configLocation" value="classpath:mybatis.xml"/>
+    </bean>
+
+    <!--    创建Dao对象-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!--    指定SqlSessionFactory对象的ID-->
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+        <!--        指定接口的包名,他会调用getMapper方法得到每个接口的dao对象-->
+        <property name="basePackage" value="com.dao"/>
+    </bean>
+
+
+</beans>
